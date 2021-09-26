@@ -1,13 +1,16 @@
 package com.ronei.tasklist.domain.user;
 
+import com.ronei.tasklist.domain.common.DomainException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -55,5 +58,25 @@ class UserServiceImplTest {
         verify(userRepository, times(1)).save(any());
 
     }
+
+    @Test
+    void shouldNotCreateUser_ifUserAlreadyExists() {
+        //given
+        UserForm userForm = UserForm.builder().email(USER_EMAIL)
+                .firstName(USER_FIRST_NAME)
+                .lastName(USER_LAST_NAME)
+                .password(USER_PASSWORD)
+                .build();
+
+        User existentUser = User.builder()
+                .email(USER_EMAIL)
+                .build();
+
+        when(userRepository.findByEmail(any())).thenReturn(Optional.of(existentUser));
+
+        assertThrows(DomainException.class, () -> userService.createUser(userForm));
+
+    }
+
 
 }

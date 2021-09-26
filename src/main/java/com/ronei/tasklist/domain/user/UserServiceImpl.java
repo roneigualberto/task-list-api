@@ -1,7 +1,10 @@
 package com.ronei.tasklist.domain.user;
 
+import com.ronei.tasklist.domain.common.DomainException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -13,6 +16,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(UserForm userForm) {
+
+        Optional<User> optUser = userRepository.findByEmail(userForm.getEmail());
+
+        if (optUser.isPresent()) {
+            throw new DomainException("User already exists");
+        }
+
 
         User user = User.builder().email(userForm.getEmail())
                 .firstName(userForm.getFirstName())
